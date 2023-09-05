@@ -1,4 +1,5 @@
 from typing import Any
+from transformers.tokenization_utils_base import BatchEncoding
 
 import torch
 import torch.distributed as dist
@@ -46,6 +47,9 @@ def to_device(x: Any, device: torch.device) -> Any:
     def _to(t: Any):
         if isinstance(t, torch.Tensor):
             return t.to(device)
+        # Add support for BatchEncoding
+        elif isinstance(t, BatchEncoding):
+            return {k: v.to(device) for k, v in t.items()}
         return t
 
     return tree_map(_to, x)
